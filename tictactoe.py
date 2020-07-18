@@ -68,6 +68,36 @@ def checkWin():
         print(winner)
         w.create_text(canvas_width / 2, canvas_height / 2, text="WINNER!", font=('Times', '36', 'bold italic'))
 
+def minimax(depth, isMax):
+    global gameBoard
+    best = -1000
+    for i in range(3):
+        for j in range(3):
+            if gameBoard[i][j] == 0:
+                gameBoard[i][j] = 2
+                best = max(best, minimax(depth + 1))
+                gameBoard[i][j] = 0
+        return best
+
+def findBestMove():
+    global gameBoard
+    bestValue = -1000
+    bestMove = [-1, -1]
+
+    for i in range(3):
+        for j in range(3):
+            if gameBoard[i][j] == 0:
+                gameBoard[i][j] = 2
+                moveVal = minimax(0)
+                gameBoard[i][j] = 0
+
+                if moveVal > bestValue:
+                    bestMove[0] = i
+                    bestMove[1] = j
+                    bestValue = moveVal
+    return bestMove
+
+
 def callback(event):
     global currentTurn
     x = 0
@@ -93,11 +123,14 @@ def callback(event):
         if currentTurn == 1:
             drawX(x, y)
             currentTurn = 2
-        else:
-            drawO(x, y)
-            currentTurn = 1
 
+        move = findBestMove()
+        gameBoard[move[0]][move[1]] = 2
+        drawO(move[0], move[1])
+        #print(move)
         checkWin()
+
+        currentTurn = 1
 
 def keyEvent(event=None):
     clearBoard()
